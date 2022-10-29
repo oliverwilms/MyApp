@@ -22,10 +22,23 @@ XData Style
 XData Contents [ XMLNamespace = "http://www.intersystems.com/zen" ]
 {
 <page xmlns="http://www.intersystems.com/zen" title="Hello">
-<tablePane id="table" sql="SELECT * FROM Feeder.ResponseTime ORDER BY ID">
+<tablePane id="table" OnCreateResultSet="CreateRS" OnExecuteResultSet="ExecuteRS">
 <parameter value="Z"/>
 </tablePane>
 </page>
+}
+
+Method CreateRS(
+	Output tSC As %Status,
+	pInfo As %ZEN.Auxiliary.QueryInfo) As %ResultSet
+{
+}
+
+Method ExecuteRS(
+	myRS As %ResultSet,
+	Output pSC As %Status,
+	pInfo As %ZEN.Auxiliary.QueryInfo) As %Boolean
+{
 }
 
 }
