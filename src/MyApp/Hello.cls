@@ -22,6 +22,9 @@ XData Style
 XData Contents [ XMLNamespace = "http://www.intersystems.com/zen" ]
 {
 <page xmlns="http://www.intersystems.com/zen" title="Hello">
+<tablePane id="table" sql="SELECT * FROM Feeder.ResponseTime ORDER BY ID">
+<parameter value="Z"/>
+</tablePane>
 </page>
 }
 
