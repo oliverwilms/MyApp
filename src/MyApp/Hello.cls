@@ -22,7 +22,7 @@ XData Style
 XData Contents [ XMLNamespace = "http://www.intersystems.com/zen" ]
 {
 <page xmlns="http://www.intersystems.com/zen" title="Hello">
-<tablePane id="table" OnCreateResultSet="CreateRS" OnExecuteResultSet="ExecuteRS">
+<tablePane id="table" queryClass="MyApp.ProductionMonitor" queryName="AllPersons" >
 <parameter value="Z"/>
 </tablePane>
 </page>
