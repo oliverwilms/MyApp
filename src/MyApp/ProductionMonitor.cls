@@ -153,6 +153,7 @@ ClassMethod ResponseReportFetch(ByRef qHandle As %Binary, ByRef Row As %List, By
 		Set Row = ""
 		Quit $$$OK
 	}
+
 	Set Row = data
 	Set AtEnd = 0
 	Set qHandle = tServiceMsgHeaderId
@@ -163,6 +164,7 @@ ClassMethod ResponseReportClose(ByRef qHandle As %Binary) As %Status [ PlaceAfte
 {
 	Kill qHandle
 	Set qHandle=""
+	Kill ^TESTResponseReport
 	Quit $$$OK
 }
 
