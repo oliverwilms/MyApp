@@ -20,7 +20,7 @@ ClassMethod GetData(pServiceName As %String) As %Status
 	//Set tWhere = " WHERE TimeCreated BETWEEN '"_tBegin_"' AND '"_tEnd_"' AND SourceConfigName = 'IncomingFSC'"
 	//Set tWhere = " WHERE TimeCreated BETWEEN ? AND ? AND SourceConfigName = 'IncomingFSC'"
 	Set tWhere = ""
-	If ($Get(pServiceName) '= "") Set tWhere = " WHERE SourceConfigName = '?'"
+	If ($Get(pServiceName) '= "") Set tWhere = " WHERE SourceConfigName = ?"
 	Set tOrderBy = " ORDER BY ID DESC"
 	//ZW tQuery
 	Set tStatement = ##class(%SQL.Statement).%New()
