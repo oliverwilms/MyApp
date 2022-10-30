@@ -1,10 +1,6 @@
 Class MyApp.ProductionMonitor
 {
 
-Query All(MyParm As %String) As %Query(CONTAINID = 1, ROWSPEC = "Title:%String,Author:%String")
-{
-}
-
 Query AllPersons() As %Query(ROWSPEC = "ID:%String,Name:%String,DOB:%String,SSN:%String")
 {
 }
