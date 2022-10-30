@@ -18,7 +18,8 @@ Query GetItemInfo() As %Query(ROWSPEC = "ConfigName:%String,BusinessType:%String
 {
 }
 
-Query ResponseReport(param As %String) As %Query(ROWSPEC = "")
+/// Set list = $LB(tServiceMsgHeaderId,tServiceMsgBodyId,tServiceMsgClassName,tServiceTimeCreated,tSessionId,tProcessName)
+Query ResponseReport(param As %String) As %Query(ROWSPEC = "ServiceMsgHeader:%String,ServiceMsgBody:%String,ServiceMsgClass:%String,ServiceTimeCreated:%String,Session:%String,Process:%String")
 {
 }
 
