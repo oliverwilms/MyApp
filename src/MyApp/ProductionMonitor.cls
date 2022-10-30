@@ -15,7 +15,7 @@ Query GetItemInfo() As %Query(ROWSPEC = "ConfigName:%String,BusinessType:%String
 }
 
 /// Set list = $LB(tServiceMsgHeaderId,tServiceMsgBodyId,tServiceMsgClassName,tServiceTimeCreated,tSessionId,tProcessName)
-Query ResponseReport(param As %String) As %Query(ROWSPEC = "ServiceMsgHeader:%String,ServiceTimeCreated:%String,Session:%String,URL:%String,Response:%String")
+Query ResponseReport(pServiceName As %String, pFrom As %String, pTill As %String) As %Query(ROWSPEC = "ServiceMsgHeader:%String,ServiceTimeCreated:%String,Session:%String,URL:%String,Response:%String")
 {
 }
 
@@ -131,10 +131,13 @@ ClassMethod GetItemInfoClose(ByRef qHandle As %Binary) As %Status [ PlaceAfter =
 	Quit $$$OK
 }
 
-ClassMethod ResponseReportExecute(ByRef qHandle As %Binary, param) As %Status
+ClassMethod ResponseReportExecute(ByRef qHandle As %Binary, pServiceName, pFrom, pTill) As %Status
 {
 	Kill qHandle
-	Set tSC = ##class(User.ResponseReport).GetData(param)
+	Set pServiceName = $Get(pServiceName)
+	Set pFrom = $Get(pFrom)
+	Set pTill = $Get(pTill)
+	Set tSC = ##class(User.ResponseReport).GetData(pServiceName,pFrom,pTill)
     Merge qHandle = ^TESTResponseReport
 	Set qHandle = 0
 	Quit $$$OK
