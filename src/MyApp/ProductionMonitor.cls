@@ -15,7 +15,7 @@ Query GetItemInfo() As %Query(ROWSPEC = "ConfigName:%String,BusinessType:%String
 }
 
 /// Set list = $LB(tServiceMsgHeaderId,tServiceMsgBodyId,tServiceMsgClassName,tServiceTimeCreated,tSessionId,tProcessName)
-Query ResponseReport(pServiceName As %String, pFrom As %String, pTill As %String) As %Query(ROWSPEC = "ServiceMsgHeader:%String,ServiceTimeCreated:%String,Session:%String,URL:%String,Response:%String")
+Query ResponseReport(pServiceName As %String, pFrom As %String, pTill As %String) As %Query(ROWSPEC = "Session:%String,SvcMsgHdr:%String,ServiceTimeCreated:%String,PrcMsgHdr:%String,URL:%String,Response:%String")
 {
 }
 
@@ -158,17 +158,18 @@ ClassMethod ResponseReportFetch(ByRef qHandle As %Binary, ByRef Row As %List, By
 	Set tServiceTimeCreated = $LIST(data,4)
 	Set tSessionId = $LIST(data,5)
 	Set tProcessName = $LIST(data,6)
-	Set tData = ##class(User.ResponseReport).GetMsgData(tSessionId,tProcessName)
+	Set tData = ##class(User.ResponseReport).GetMsgData(tSessionId,tProcessName,tServiceMsgHeaderId)
 	Set tProcessMsgHeaderId = $Piece(tData,"^",2)
 	Set tProcessTimeCreated = $Piece(tData,"^",3)
 	Set tProcessTimeProcessed = $Piece(tData,"^",4)
 	Set tProcessTarget = $Piece(tData,"^",5)
-	Set tData = ##class(User.ResponseReport).GetRespData(tSessionId,tProcessTarget)
+	Set tRespHeaderId = $Piece(tData,"^",6)
+	Set tData = ##class(User.ResponseReport).GetRespData(tSessionId,tProcessTarget,tRespHeaderId)
 	Set tResponseMsgBodyId = $Piece(tData,"^",2)
 	Set tResponseTimeCreated = $Piece(tData,"^",3)
 	Set tURLString = ##class(User.ResponseReport).GetMsgBodyURL(tServiceMsgClassName,tServiceMsgBodyId)
 	Set tResponseStatusLine = ##class(User.ResponseReport).GetMsgBodyStatusLine(tServiceMsgClassName,tResponseMsgBodyId)
-	Set list = $LB(tServiceMsgHeaderId,tServiceTimeCreated,tSessionId,tURLString,tResponseStatusLine)
+	Set list = $LB(tSessionId,tServiceMsgHeaderId,tServiceTimeCreated,tProcessMsgHeaderId,tURLString,tResponseStatusLine)
 	Set Row = list
 	Set AtEnd = 0
 	Set qHandle = tServiceMsgHeaderId
