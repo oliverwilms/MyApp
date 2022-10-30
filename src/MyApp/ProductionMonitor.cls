@@ -18,6 +18,10 @@ Query GetItemInfo() As %Query(ROWSPEC = "ConfigName:%String,BusinessType:%String
 {
 }
 
+Query ResponseReport(param As %String) As %Query(ROWSPEC = "")
+{
+}
+
 ClassMethod AllPersonsExecute(ByRef qHandle As %Binary) As %Status
 {
 	Kill qHandle
@@ -26,10 +30,7 @@ ClassMethod AllPersonsExecute(ByRef qHandle As %Binary) As %Status
 	Quit $$$OK
 }
 
-ClassMethod AllPersonsFetch(
-	ByRef qHandle As %Binary,
-	ByRef Row As %List,
-	ByRef AtEnd As %Integer = 0) As %Status [ PlaceAfter = AllPersonsExecute ]
+ClassMethod AllPersonsFetch(ByRef qHandle As %Binary, ByRef Row As %List, ByRef AtEnd As %Integer = 0) As %Status [ PlaceAfter = AllPersonsExecute ]
 {
 	Set data = $Get(qHandle($I(qHandle)))
 	Set delim = $Extract(data,1)
@@ -70,10 +71,7 @@ ClassMethod GetHostInfoExecute(ByRef qHandle As %Binary) As %Status [ PublicList
 	Quit $$$OK
 }
 
-ClassMethod GetHostInfoFetch(
-	ByRef qHandle As %Binary,
-	ByRef Row As %List,
-	ByRef AtEnd As %Integer = 0) As %Status [ PlaceAfter = GetHostInfoExecute ]
+ClassMethod GetHostInfoFetch(ByRef qHandle As %Binary, ByRef Row As %List, ByRef AtEnd As %Integer = 0) As %Status [ PlaceAfter = GetHostInfoExecute ]
 {
 	Set data = $Get(qHandle($I(qHandle)))
 	If (data = "") {
@@ -114,10 +112,7 @@ ClassMethod GetItemInfoExecute(ByRef qHandle As %Binary) As %Status [ PublicList
 	Quit $$$OK
 }
 
-ClassMethod GetItemInfoFetch(
-	ByRef qHandle As %Binary,
-	ByRef Row As %List,
-	ByRef AtEnd As %Integer = 0) As %Status [ PlaceAfter = GetItemInfoExecute ]
+ClassMethod GetItemInfoFetch(ByRef qHandle As %Binary, ByRef Row As %List, ByRef AtEnd As %Integer = 0) As %Status [ PlaceAfter = GetItemInfoExecute ]
 {
 	Set data = ""
 	Set tConfigName = $ORDER(qHandle(qHandle),1,data)
@@ -133,6 +128,37 @@ ClassMethod GetItemInfoFetch(
 }
 
 ClassMethod GetItemInfoClose(ByRef qHandle As %Binary) As %Status [ PlaceAfter = GetItemInfoFetch ]
+{
+	Kill qHandle
+	Set qHandle=""
+	Quit $$$OK
+}
+
+ClassMethod ResponseReportExecute(ByRef qHandle As %Binary, param) As %Status
+{
+	Kill qHandle
+	Set tSC = ##class(User.ResponseReport).GetData(param)
+    Merge qHandle = ^TESTResponseReport
+	Set qHandle = 0
+	Quit $$$OK
+}
+
+ClassMethod ResponseReportFetch(ByRef qHandle As %Binary, ByRef Row As %List, ByRef AtEnd As %Integer = 0) As %Status [ PlaceAfter = AllPersonsExecute ]
+{
+	Set data = ""
+	Set tServiceMsgHeaderId = $ORDER(qHandle(qHandle),1,data)
+	If (tServiceMsgHeaderId = "") {
+		Set AtEnd = 1
+		Set Row = ""
+		Quit $$$OK
+	}
+	Set Row = data
+	Set AtEnd = 0
+	Set qHandle = tServiceMsgHeaderId
+	Quit $$$OK
+}
+
+ClassMethod ResponseReportClose(ByRef qHandle As %Binary) As %Status [ PlaceAfter = AllPersonsFetch ]
 {
 	Kill qHandle
 	Set qHandle=""
