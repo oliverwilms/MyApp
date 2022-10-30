@@ -130,9 +130,9 @@ ClassMethod GetMsgData(
 	//Write !,$Get(x,0),!
 	//DO rset.%Display()
 	//WRITE !,"End of data"
-	Set tDebug = "^"_tMsgHeaderId_"^"_tTimeCreated_"^"_tTimeProcessed_"^"_tTarget
-	Do:pDEBUG ##class(HS.Local.VA.eSCM.DMLSS.Debug).DebugTEST(tDebug)
-	Quit "^"_tMsgHeaderId_"^"_tTimeCreated_"^"_tTimeProcessed_"^"_tTarget_"^"_tRespHeaderId
+	Set tReturn = "^"_tMsgHeaderId_"^"_tTimeCreated_"^"_tTimeProcessed_"^"_tTarget_"^"_tRespHeaderId
+	Do:pDEBUG ##class(HS.Local.VA.eSCM.DMLSS.Debug).DebugTEST(tReturn)
+	Quit tReturn
 }
 
 ClassMethod GetRespData(
