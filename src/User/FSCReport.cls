@@ -1,4 +1,4 @@
-Class User.ResponseReport
+Class User.FSCReport
 {
 
 ClassMethod GetData(
