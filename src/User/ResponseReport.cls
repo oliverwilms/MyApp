@@ -2,21 +2,18 @@ Class User.ResponseReport
 {
 
 ClassMethod GetData(
-	pServiceName As %String,
+	pName As %String,
 	pFrom As %String,
 	pTill As %String) As %Status
 {
+	Set ^TEST($I(^TEST))="GetData"
+	Kill ^TESTResponseReport
 	Set tSC = $$$OK
-	//Set tSC = ##class(FSCReport).%DeleteExtent()
-	//Set tBegin = "2022-04-28 14:00:00"
-	//Set tEnd = "2022-04-28 15:15:00"
-	//Set tBegin = "2022-10-06 00:01:00"
-	//Set tEnd = "2022-10-06 23:45:00"
 	Set tBegin = $Get(pFrom)
 	Set tEnd = $Get(pTill)
 	If (tBegin = "") { Set tBegin = "2022-04-28 14:00:00" }
 	If (tEnd = "") { Set tEnd = "2099-12-31 23:59:59" }
-	If ($Get(pServiceName) = "") { Set pServiceName = "IncomingFSC" }
+	//If ($Get(pServiceName) = "") { Set pServiceName = "IncomingFSC" }
 	/*
 	Set tSQL = ""
 	Set tSQL($I(tSQL)) = "SELECT ID, Banked, BusinessProcessId, CorrespondingMessageId, Description, ErrorStatus, Invocation, "
@@ -28,29 +25,35 @@ ClassMethod GetData(
 	*/
 	Set tQuery = "SELECT ID, CorrespondingMessageId, ErrorStatus, MessageBodyClassName, MessageBodyId, SessionId, Status, TargetConfigName, TimeCreated FROM Ens.MessageHeader"
 	//Set tWhere = " WHERE TimeCreated BETWEEN '"_tBegin_"' AND '"_tEnd_"' AND SourceConfigName = 'IncomingFSC'"
-	Set tWhere = " WHERE TimeCreated BETWEEN ? AND ?"
-	If ($Get(pServiceName) '= "") Set tWhere = tWhere_" AND SourceConfigName = ?"
+	Set tWhere = " WHERE TargetBusinessType = 3 AND TimeCreated BETWEEN ? AND ?"
+	If ($Get(pName) '= "") Set tWhere = tWhere_" AND SourceConfigName = ?"
 	Set tOrderBy = " ORDER BY ID DESC"
 	//ZW tQuery
 	Set tStatement = ##class(%SQL.Statement).%New()
 	Set tStatement.%SelectMode = 1  // 0 for LOGICAL mode, 1 for ODBC mode, 2 for DISPLAY mode.
 	Set qStatus = tStatement.%Prepare(tQuery_$Get(tWhere)_$Get(tOrderBy))
+	Set ^TEST($I(^TEST)) = qStatus
 	If qStatus'=1 {WRITE "%Prepare failed:" DO $System.Status.DisplayError(qStatus) QUIT}
 	#Dim rset As %SQL.StatementResult
-	//Set rset = tStatement.%Execute(tBegin,tEnd)
-	Set rset = tStatement.%Execute(tBegin,tEnd,pServiceName)
+	If ($Get(pName) = "") { Set rset = tStatement.%Execute(tBegin,tEnd) }
+	If ($Get(pName) '= "") { Set rset = tStatement.%Execute(tBegin,tEnd,pName) }
 	Set x = rset.%SQLCODE
+	Set ^TEST($I(^TEST)) = x
 	While rset.%Next(.tSC) {
-		Set tServiceMsgHeaderId = rset.%Get("ID")
-		Set tServiceMsgBodyId = rset.%Get("MessageBodyId")
-		Set tServiceMsgClassName = rset.%Get("MessageBodyClassName")
-		Set tServiceTimeCreated = rset.%Get("TimeCreated")
+		Set tRequestMsgHeaderId = rset.%Get("ID")
+		Set tResponseMsgHeaderId = rset.%Get("CorrespondingMessageId")
+		Set tRequestMsgBodyId = rset.%Get("MessageBodyId")
+		Set tRequestMsgClassName = rset.%Get("MessageBodyClassName")
+		Set tRequestTimeCreated = rset.%Get("TimeCreated")
 		Set tSessionId = rset.%Get("SessionId")
-		Set tProcessName = rset.%Get("TargetConfigName")
-		Set list = $LB(tServiceMsgHeaderId,tServiceMsgBodyId,tServiceMsgClassName,tServiceTimeCreated,tSessionId,tProcessName)
-		Set ^TESTResponseReport(tServiceMsgHeaderId) = list
+		//Set tTargetBusinessType = rset.%Get("TargetBusinessType")
+		//Set ^TEST($I(^TEST)) = "TargetType = "_tTargetBusinessType
+		//Set tProcessName = rset.%Get("TargetConfigName")
+		Set list = $LB(tRequestMsgHeaderId,tRequestMsgBodyId,tRequestMsgClassName,tRequestTimeCreated,tSessionId,tResponseMsgHeaderId)
+		Set ^TESTResponseReport(tRequestMsgHeaderId) = list
 		//Quit	
 	}
+	Set ^TEST($I(^TEST)) = "QUIT"
 	Quit tSC
 }
 
