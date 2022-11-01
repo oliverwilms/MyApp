@@ -14,8 +14,8 @@ Query GetItemInfo() As %Query(ROWSPEC = "ConfigName:%String,BusinessType:%String
 {
 }
 
-/// Set list = $LB(tServiceMsgHeaderId,tServiceMsgBodyId,tServiceMsgClassName,tServiceTimeCreated,tSessionId,tProcessName)
-Query ResponseReport(pServiceName As %String, pFrom As %String, pTill As %String) As %Query(ROWSPEC = "Session:%String,SvcMsgHdr:%String,ServiceTimeCreated:%String,PrcMsgHdr:%String,URL:%String,Response:%String")
+/// Set list = $LB(tRequestMsgHeaderId,tRequestMsgBodyId,tRequestMsgClassName,tRequestTimeCreated,tSessionId,tResponseMsgHeaderId)
+Query ResponseReport(pName As %String, pFrom As %String, pTill As %String) As %Query(ROWSPEC = "Session:%String,SvcMsgHdr:%String,ServiceTimeCreated:%String,PrcMsgHdr:%String,URL:%String,Response:%String")
 {
 }
 
@@ -131,13 +131,14 @@ ClassMethod GetItemInfoClose(ByRef qHandle As %Binary) As %Status [ PlaceAfter =
 	Quit $$$OK
 }
 
-ClassMethod ResponseReportExecute(ByRef qHandle As %Binary, pServiceName, pFrom, pTill) As %Status
+ClassMethod ResponseReportExecute(ByRef qHandle As %Binary, pName, pFrom, pTill) As %Status
 {
+	Set ^TEST($I(^TEST))="ResponseReportExecute"
 	Kill qHandle
-	Set pServiceName = $Get(pServiceName)
+	Set pName = $Get(pName)
 	Set pFrom = $Get(pFrom)
 	Set pTill = $Get(pTill)
-	Set tSC = ##class(User.ResponseReport).GetData(pServiceName,pFrom,pTill)
+	Set tSC = ##class(User.ResponseReport).GetData(pName,pFrom,pTill)
     Merge qHandle = ^TESTResponseReport
 	Set qHandle = 0
 	Quit $$$OK
@@ -145,39 +146,47 @@ ClassMethod ResponseReportExecute(ByRef qHandle As %Binary, pServiceName, pFrom,
 
 ClassMethod ResponseReportFetch(ByRef qHandle As %Binary, ByRef Row As %List, ByRef AtEnd As %Integer = 0) As %Status [ PlaceAfter = AllPersonsExecute ]
 {
+	Set ^TEST($I(^TEST))="ResponseReportFetch"
 	Set data = ""
-	Set tServiceMsgHeaderId = $ORDER(qHandle(qHandle),1,data)
-	If (tServiceMsgHeaderId = "") {
+	Set tRequestMsgHeaderId = $ORDER(qHandle(qHandle),1,data)
+	If (tRequestMsgHeaderId = "") {
 		Set AtEnd = 1
 		Set Row = ""
 		Quit $$$OK
 	}
-	// Set list = $LB(tServiceMsgHeaderId,tServiceMsgBodyId,tServiceMsgClassName,tServiceTimeCreated,tSessionId,tProcessName)
-	Set tServiceMsgBodyId = $LIST(data,2)
-	Set tServiceMsgClassName = $LIST(data,3)
-	Set tServiceTimeCreated = $LIST(data,4)
+	/// Set list = $LB(tRequestMsgHeaderId,tRequestMsgBodyId,tRequestMsgClassName,tRequestTimeCreated,tSessionId,tResponseMsgHeaderId,tTargetBusinessType)
+	Set tRequestMsgBodyId = $LIST(data,2)
+	Set tRequestMsgClassName = $LIST(data,3)
+	Set tRequestTimeCreated = $LIST(data,4)
 	Set tSessionId = $LIST(data,5)
-	Set tProcessName = $LIST(data,6)
-	Set tData = ##class(User.ResponseReport).GetMsgData(tSessionId,tProcessName,tServiceMsgHeaderId)
+	//Set tProcessName = $LIST(data,6)
+	//Set tProcessTarget = tProcessName
+	Set tRespHeaderId = $Piece(data,"^",6)
+	//Set tTargetBusinessType = $LIST(data,7)
+	/*
+	Set tData = ##class(User.ResponseReport).GetMsgData(tSessionId,tProcessName,tRequestMsgHeaderId)
 	Set tProcessMsgHeaderId = $Piece(tData,"^",2)
 	Set tProcessTimeCreated = $Piece(tData,"^",3)
 	Set tProcessTimeProcessed = $Piece(tData,"^",4)
 	Set tProcessTarget = $Piece(tData,"^",5)
 	Set tRespHeaderId = $Piece(tData,"^",6)
+	*/
+	Set tProcessTarget = ""
 	Set tData = ##class(User.ResponseReport).GetRespData(tSessionId,tProcessTarget,tRespHeaderId)
 	Set tResponseMsgBodyId = $Piece(tData,"^",2)
 	Set tResponseTimeCreated = $Piece(tData,"^",3)
-	Set tURLString = ##class(User.ResponseReport).GetMsgBodyURL(tServiceMsgClassName,tServiceMsgBodyId)
-	Set tResponseStatusLine = ##class(User.ResponseReport).GetMsgBodyStatusLine(tServiceMsgClassName,tResponseMsgBodyId)
-	Set list = $LB(tSessionId,tServiceMsgHeaderId,tServiceTimeCreated,tProcessMsgHeaderId,tURLString,tResponseStatusLine)
+	Set tURLString = ##class(User.ResponseReport).GetMsgBodyURL(tRequestMsgClassName,tRequestMsgBodyId)
+	Set tResponseStatusLine = ##class(User.ResponseReport).GetMsgBodyStatusLine(tRequestMsgClassName,tResponseMsgBodyId)
+	Set list = $LB(tSessionId,tRequestMsgHeaderId,tRequestTimeCreated,tProcessMsgHeaderId,tURLString,tResponseStatusLine)
 	Set Row = list
 	Set AtEnd = 0
-	Set qHandle = tServiceMsgHeaderId
+	Set qHandle = tRequestMsgHeaderId
 	Quit $$$OK
 }
 
 ClassMethod ResponseReportClose(ByRef qHandle As %Binary) As %Status [ PlaceAfter = AllPersonsFetch ]
 {
+	Set ^TEST($I(^TEST))="ResponseReportClose"
 	Kill qHandle
 	Set qHandle=""
 	Kill ^TESTResponseReport
